@@ -1,9 +1,10 @@
 import pygame
 import math
 from queue import PriorityQueue
+import sys
 
 # Display Config:
-WIDTH = 800
+WIDTH = 650
 WIN = pygame.display.set_mode((WIDTH, WIDTH))
 pygame.display.set_caption("A* PathFinder")
 
@@ -26,7 +27,7 @@ TURQUOISE = (64, 244, 208)
 # The spot should know its width so that it could draw itself
 # This will also keep track of its neighbors
 # The color will play an important part so that it could determine
-#    wether it should be start/ end node barrier or the neighbors
+# Wether it should be start/ end node barrier or the neighbors
 
 
 class Spot:
@@ -66,6 +67,9 @@ class Spot:
 
     def reset(self):
         return self.color == WHITE
+
+    def make_start(self):
+        self.color = ORANGE
 
     # These contain the squares that have we already looked at or not
     def make_open(self):
@@ -139,4 +143,61 @@ def draw(win, grid, rows, width):
         for spot in row:
             spot.draw(win)
 
-    draw_grid()
+    draw_grid(win, rows, width)
+    pygame.display.update()
+
+
+# This will take care of which box is clicked
+# Given a mouse position it will translate that into x,y position
+def get_clicked_pos(pos, rows, width):
+    gap = width // rows
+    y, x = pos
+
+    row = y // gap
+    col = x // gap
+
+    return row, col
+
+
+def main(win, width):
+    ROWS = 50
+    grid = make_grid(ROWS, width)
+
+    start = None
+    end = None
+
+    run = True
+    started = False
+
+    while run:
+
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                run = False
+            if started:
+                continue
+
+            if pygame.mouse.get_pressed()[0]:
+                pos = pygame.mouse.get_pos()  # left button
+                row, col = get_clicked_pos(pos, ROWS, width)
+                spot = grid[row][col]
+
+                if not start:
+                    start = spot
+                    start.make_start()
+                elif not end:
+                    end = spot
+                    end.make_end()
+                elif spot != end and spot != start:
+                    spot.make_barrier()
+
+            if pygame.mouse.get_pressed()[2]:
+                ...  # left button
+
+    pygame.quit()
+    sys.exit()
+
+
+if __name__ == "__main__":
+    main(WIN, WIDTH)
