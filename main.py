@@ -13,8 +13,8 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
+BLACK = (255, 255, 255)
+WHITE = (0, 0, 0)
 PURPLE = (128, 0, 128)
 ORANGE = (255, 165, 0)
 GREY = (128, 128, 128)
@@ -96,20 +96,20 @@ class Spot:
         self.neighbors = []
         if (
             self.row < self.total_rows - 1
-            and not grid[self.row + 1][self.col].is_barrier()  # DOWN
-        ):
+            and not grid[self.row + 1][self.col].is_barrier()
+        ):  # DOWN
             self.neighbors.append(grid[self.row + 1][self.col])
 
-        if self.row > 0 and not grid[self.row - 1][self.col].is_barrier():  #  UP
+        if self.row > 0 and not grid[self.row - 1][self.col].is_barrier():  # UP
             self.neighbors.append(grid[self.row - 1][self.col])
 
         if (
             self.col < self.total_rows - 1
-            and not grid[self.row][self.col + 1].is_barrier()  # RIGHT
-        ):
+            and not grid[self.row][self.col + 1].is_barrier()
+        ):  # RIGHT
             self.neighbors.append(grid[self.row][self.col + 1])
 
-        if self.col < 0 and not grid[self.row][self.col - 1].is_barrier():  # LEFT
+        if self.col > 0 and not grid[self.row][self.col - 1].is_barrier():  # LEFT
             self.neighbors.append(grid[self.row][self.col - 1])
 
     def __lt__(self, other):
@@ -124,6 +124,13 @@ def h(p1, p2):
     x2, y2 = p2
 
     return abs(x1 - x2) + abs(y1 - y2)
+
+
+def reconstruct_path(came_from, current, draw):
+    while current in came_from:
+        current = came_from[current]
+        current.make_path()
+        draw()
 
 
 # This would be the A* Algorithm
@@ -144,6 +151,52 @@ def algorithm(draw, grid, start, end):
 
     f_score = {spot: float("inf") for row in grid for spot in row}
     f_score[start] = h(start.get_pos(), end.get_pos())
+
+    # This would take care of which items are in the PriorityQueue
+    open_set_hash = {start}
+
+    # this would traverse throught all possilbe node
+    # and the end the path would exit or it wont exist
+    while not open_set.empty():
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+        # Open set at [2] because the open_set will store f_score, count, start
+        # So [2] will be the node
+        current = open_set.get()[2]
+
+        # This will pop out the node such that there are no duplicates
+        open_set_hash.remove(current)
+
+        # The node we pulled out from priorty queue is end node
+        # Then we found the shortest path, construct the path
+        if current == end:
+            reconstruct_path(came_from, end, draw)
+            end.make_end()
+            return True
+
+        # Considering neighbors of the current node:
+        for neighbor in current.neighbors:
+            temp_g_score = g_score[current] + 1
+
+            if temp_g_score < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = temp_g_score
+                f_score[neighbor] = temp_g_score + h(neighbor.get_pos(), end.get_pos())
+
+                if neighbor not in open_set_hash:
+                    count += 1
+                    open_set.put((f_score[neighbor], count, neighbor))
+                    open_set_hash.add(neighbor)
+                    neighbor.make_open()
+
+        draw()
+
+        if current != start:
+            current.make_close()
+
+    return False
 
 
 # This would create the Grid
@@ -202,7 +255,6 @@ def main(win, width):
     end = None
 
     run = True
-    started = False
 
     while run:
         draw(win, grid, ROWS, width)
@@ -211,8 +263,6 @@ def main(win, width):
 
             if event.type == pygame.QUIT:
                 run = False
-            if started:
-                continue
 
             if pygame.mouse.get_pressed()[0]:
                 pos = pygame.mouse.get_pos()  # left button
@@ -245,12 +295,17 @@ def main(win, width):
             # This will make sure the run the algorithm
             # This will also update the neighbors
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and not started:
+                if event.key == pygame.K_SPACE and start and end:
                     for row in grid:
                         for spots in row:
-                            spots.update_neighbor()
+                            spots.update_neighbor(grid)
 
                     algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
+
+                if event.key == pygame.K_r:
+                    start = None
+                    end = None
+                    grid = make_grid(ROWS, width)
 
     pygame.quit()
     sys.exit()
