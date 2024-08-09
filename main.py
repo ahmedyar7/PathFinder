@@ -1,7 +1,7 @@
 import pygame
+import sys
 import math
 from queue import PriorityQueue
-import sys
 
 # Display Config:
 WIDTH = 650
@@ -66,21 +66,21 @@ class Spot:
         return self.color == TURQUOISE
 
     def reset(self):
-        return self.color == WHITE
+        self.color = WHITE
 
     def make_start(self):
         self.color = ORANGE
 
     # These contain the squares that have we already looked at or not
     def make_open(self):
-        self.color == GREEN
+        self.color = GREEN
 
     # Are the spot in the open set or not
     def make_close(self):
-        self.color == RED
+        self.color = RED
 
     def make_barrier(self):
-        self.color == BLACK
+        self.color = BLACK
 
     def make_end(self):
         self.color = TURQUOISE
@@ -93,7 +93,24 @@ class Spot:
         pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
 
     def update_neighbor(self, grid):
-        pass
+        self.neighbors = []
+        if (
+            self.row < self.total_rows - 1
+            and not grid[self.row + 1][self.col].is_barrier()  # DOWN
+        ):
+            self.neighbors.append(grid[self.row + 1][self.col])
+
+        if self.row > 0 and not grid[self.row - 1][self.col].is_barrier():  #  UP
+            self.neighbors.append(grid[self.row - 1][self.col])
+
+        if (
+            self.col < self.total_rows - 1
+            and not grid[self.row][self.col + 1].is_barrier()  # RIGHT
+        ):
+            self.neighbors.append(grid[self.row][self.col + 1])
+
+        if self.col < 0 and not grid[self.row][self.col - 1].is_barrier():  # LEFT
+            self.neighbors.append(grid[self.row][self.col - 1])
 
     def __lt__(self, other):
         return False
@@ -102,13 +119,31 @@ class Spot:
 # Defining the Hurestic Function H(z):
 # p1 & p2 are the point 1 and point 2
 # This would also calculate the Manhattan's Distance
-
-
 def h(p1, p2):
     x1, y1 = p1
     x2, y2 = p2
 
     return abs(x1 - x2) + abs(y1 - y2)
+
+
+# This would be the A* Algorithm
+def algorithm(draw, grid, start, end):
+    count = 0
+    open_set = PriorityQueue()
+
+    # This would add the start node with it's original f-score i.e 0
+    # count is being added so that we can refer when we addded these items
+    # So that we can break ties when we have 2 spot having the same f-score
+
+    open_set.put((0, count, start))
+
+    # This will keep track of which node came from which node
+    came_from = {}
+    g_score = {spot: float("inf") for row in grid for spot in row}
+    g_score[start] = 0
+
+    f_score = {spot: float("inf") for row in grid for spot in row}
+    f_score[start] = h(start.get_pos(), end.get_pos())
 
 
 # This would create the Grid
@@ -170,6 +205,7 @@ def main(win, width):
     started = False
 
     while run:
+        draw(win, grid, ROWS, width)
 
         for event in pygame.event.get():
 
@@ -183,17 +219,38 @@ def main(win, width):
                 row, col = get_clicked_pos(pos, ROWS, width)
                 spot = grid[row][col]
 
-                if not start:
+                if not start and spot != end:
                     start = spot
                     start.make_start()
-                elif not end:
+
+                elif not end and spot != start:
                     end = spot
                     end.make_end()
+
                 elif spot != end and spot != start:
                     spot.make_barrier()
 
-            if pygame.mouse.get_pressed()[2]:
-                ...  # left button
+            elif pygame.mouse.get_pressed()[2]:  # right button
+                pos = pygame.mouse.get_pos()  # left button
+                row, col = get_clicked_pos(pos, ROWS, width)
+                spot = grid[row][col]
+                spot.reset()
+
+                if spot == start:
+                    start = None
+
+                elif spot == end:
+                    end = None
+
+            # This will make sure the run the algorithm
+            # This will also update the neighbors
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and not started:
+                    for row in grid:
+                        for spots in row:
+                            spots.update_neighbor()
+
+                    algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
 
     pygame.quit()
     sys.exit()
