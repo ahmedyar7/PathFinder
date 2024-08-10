@@ -3,7 +3,7 @@ from queue import PriorityQueue
 import sys
 
 pygame.init()
-RESOLUTION = (1280, 720)
+RESOLUTION = (1280, 670)
 WIN = pygame.display.set_mode(RESOLUTION)
 pygame.display.set_caption("A* PathFinder")
 
