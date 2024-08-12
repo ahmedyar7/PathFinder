@@ -1,7 +1,7 @@
 import pygame
 import math
 import sys
-from queue import PriorityQueue
+
 from algorithm import hurestic_function
 from grid import make_grid, draw
 
@@ -76,7 +76,29 @@ class Spot:
     def draw(self):
         pygame.draw.rect(WINDOW, self.color, (self.x, self.y, self.width, self.width))
 
-    def update_neighbors(self, grid): ...
+    def update_neighbors(self, grid):
+        """
+        This function would update the neighbors of the spots checking
+        There validity and then moving towards them
+        """
+        self.neighbors = []
+        if (
+            self.row < self.total_rows - 1
+            and not grid[self.row + 1][self.col].is_barrier()
+        ):
+            self.neighbors.append(grid[self.row + 1][self.col])
+
+        if self.row > 0 and not grid[self.row - 1][self.col].is_barrier():
+            self.neighbors.append(grid[self.row - 1][self.col])
+
+        if (
+            self.col < self.total_rows - 1
+            and not grid[self.row + 1][self.col + 1].is_barrier()
+        ):
+            self.neighbors.append(grid[self.row][self.col + 1])
+
+        if self.row > 0 and not grid[self.row][self.col - 1].is_barrier():
+            self.neighbors.append(grid[self.row][self.col - 1])
 
     def __lt__(self, other):
         return False
@@ -94,7 +116,7 @@ def get_clicked_pos(pos, rows, width):
 
 def main(win, width):
 
-    ROWS = 50
+    ROWS = 75
     grid = make_grid(ROWS, width)
 
     start = None
@@ -129,11 +151,16 @@ def main(win, width):
                 row, col = get_clicked_pos(pos, ROWS, width)
                 spot = grid[row][col]
                 spot.reset()
-
                 if spot == start:
                     start = None
                 elif spot == end:
                     end = None
+
+            if events.type == pygame.KEYDOWN:
+                if events.key == pygame.K_SPACE and not started:
+                    for row in grid:
+                        for spot in row:
+                            spot.update_neighbors()
 
     pygame.quit()
     sys.exit()
