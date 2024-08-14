@@ -83,6 +83,42 @@ class Program:
                             end,
                         )
 
+                    if events.key == pygame.K_b and not started:
+                        for row in grid:
+                            for spot in row:
+                                spot.update_neighbor(grid)
+
+                        self.algo.bfs_algorithm(
+                            lambda: self.grids.draw(win, grid, ROWS, width),
+                            grid,
+                            start,
+                            end,
+                        )
+
+                    if events.key == pygame.K_p and not started:
+                        for row in grid:
+                            for spot in row:
+                                spot.update_neighbor(grid)
+
+                        self.algo.prim_algorithm(
+                            lambda: self.grids.draw(win, grid, ROWS, width),
+                            grid,
+                            start,
+                            end,
+                        )
+
+                    if events.key == pygame.K_d and not started:
+                        for row in grid:
+                            for spot in row:
+                                spot.update_neighbor(grid)
+
+                        self.algo.dijkstra_algorithm(
+                            lambda: self.grids.draw(win, grid, ROWS, width),
+                            grid,
+                            start,
+                            end,
+                        )
+
                     if events.key == pygame.K_r:
                         start = None
                         end = None
