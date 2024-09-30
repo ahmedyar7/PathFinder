@@ -9,7 +9,7 @@ from grid import Grid
 WIDTH = 650
 WINDOW = pygame.display.set_mode((WIDTH, WIDTH))
 
-pygame.display.set_caption("A-Star-Pathfinder")
+pygame.display.set_caption("Pathfinder")
 
 
 class Program:
