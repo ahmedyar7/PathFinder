@@ -1,5 +1,3 @@
-Here’s your updated `README.md` with added emojis for a more engaging presentation:
-
 # 🧭 Pathfinder Visualizer
 
 This repository contains a visual implementation of the **A\*** pathfinding algorithm and other algorithms such as **BFS**, **Dijkstra**, and **Prim's Algorithm**. The implementation uses **Pygame** 🕹️ for the graphical interface and interactive grid-based pathfinding visualization.
