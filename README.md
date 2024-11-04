@@ -2,9 +2,9 @@
 
 This repository contains a visual implementation of the **A\*** pathfinding algorithm and other algorithms such as **BFS**, **Dijkstra**, and **Prim's Algorithm**. The implementation uses **Pygame** 🕹️ for the graphical interface and interactive grid-based pathfinding visualization.
 
-| 🟢 **BFS Algorithm**      | 🔵 **DFS Algorithm**      | ⭐ **A\* Algorithm**       |
-| ------------------------- | ------------------------- | -------------------------- |
-| ![BFS Image](img/bfs.png) | ![DFS Image](img/dfs.png) | ![A* Image](img/astar.png) |
+| 🟢 **BFS Algorithm**                | 🔵 **DFS Algorithm**                | ⭐ **A\* Algorithm**                 |
+| ----------------------------------- | ----------------------------------- | ------------------------------------ |
+| ![BFS Image](assets/images/bfs.png) | ![DFS Image](assets/images/dfs.png) | ![A* Image](assets/images/astar.png) |
 
 ## ✨ Features
 
@@ -41,7 +41,7 @@ To run this project locally, follow these steps:
       <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white&style=for-the-badge" height="50" alt="python logo"  />
   </a>
   <a href="https://www.pygame.org/news">
-      <img src="img/pygamenew.png" height="50" alt="pygame logo"  />
+      <img src="assets/images/pygamenew.png" height="50" alt="pygame logo"  />
   </a>
 </div>
 
