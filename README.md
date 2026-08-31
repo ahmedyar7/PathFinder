@@ -45,6 +45,43 @@ To run this project locally, follow these steps:
   </a>
 </div>
 
+## 📦 Building a Standalone Executable
+
+The app can be frozen into a single file that runs on a machine with no Python installed, using [PyInstaller](https://pyinstaller.org/):
+
+```bash
+pip install -r requirements.txt pyinstaller
+pyinstaller --noconfirm --clean --onefile --windowed --name PathFinder main.py
+```
+
+The result lands in `dist/`:
+
+| Platform | Output                                       |
+| -------- | -------------------------------------------- |
+| Windows  | `dist/PathFinder.exe`                        |
+| Linux    | `dist/PathFinder` (run `chmod +x` first)     |
+| macOS    | `dist/PathFinder.app`                        |
+
+A few things worth knowing:
+
+- `--onefile` packs Python, pygame and SDL into one file, so the first launch is slightly slower while it unpacks into a temp folder.
+- `--windowed` hides the terminal window that would otherwise sit behind the game window.
+- PyInstaller does **not** cross-compile — build on the OS you are targeting, or let CI do it (below).
+- Add an icon with `--icon icon.ico` on Windows or `--icon icon.icns` on macOS.
+
+### 🤖 Automated Releases
+
+[`.github/workflows/release.yml`](.github/workflows/release.yml) builds every target and publishes them for you. Tag a commit and push the tag:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+That builds Windows x64, Linux x64, macOS Intel and macOS Apple Silicon in parallel, smoke-tests the Linux binary, then creates a GitHub Release for the tag with generated notes and all four downloads attached. The same workflow can be started by hand from **Actions → Release → Run workflow**, typing the tag to publish.
+
+The binaries are unsigned, so on first run macOS needs `xattr -dr com.apple.quarantine PathFinder.app` and Windows may show a SmartScreen prompt (**More info → Run anyway**).
+
 ## 🛠️ Usage
 
 After starting the program, an interactive window will open where you can draw the start and end points, barriers, and choose different algorithms to visualize their pathfinding.
